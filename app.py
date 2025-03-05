@@ -4,6 +4,7 @@ import torch
 from PIL import Image
 import numpy as np
 
+@st.cache_resource
 def load_model():
     weights = "trained_weights/yolov7_best_v3.pt"
     model = torch.hub.load("yolov7","custom",f"{weights}",source="local",trust_repo=True)
@@ -14,17 +15,18 @@ def load_image(img_file_or_path):
     img = np.array(actual_image)
     return img
 
-def run_inference(model,img):
-    results = model(img)
+@st.cache_data
+def run_inference(_model,img):
+    results = _model(img)
     df = results.pandas().xyxy[0]
-    result_df = df[['xmin', 'ymin', 'xmax', 'ymax', 'confidence']]
+    result_df = df[['class','xmin', 'ymin', 'xmax', 'ymax', 'confidence']]
     result_img = results.render()
     return result_df, result_img
 
 
 def main():
     st.title('Jasmine Flower Detection')
-    left_column, middle_column, right_column = st.columns(3)
+    # left_column, middle_column, right_column = st.columns(3)
     st.session_state['running'] = False
     # model = load_model()
     
