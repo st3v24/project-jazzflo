@@ -15,10 +15,14 @@ def load_image(img_file_or_path):
     img = np.array(actual_image)
     return img
 
+def class_map(x):
+    return x.map({1:"Flower", 0:"Bud"})
+
 @st.cache_data
 def run_inference(_model,img):
     results = _model(img)
     df = results.pandas().xyxy[0]
+    df[["class"]] = df[["class"]].apply(class_map)
     result_df = df[['class','xmin', 'ymin', 'xmax', 'ymax', 'confidence']]
     result_img = results.render()
     return result_df, result_img
@@ -42,6 +46,7 @@ def main():
         model = load_model()
         result_df, result_img = run_inference(model,img)
         st.session_state['result_img'] = result_img
+        st.session_state['result_df'] = result_df
         st.dataframe(result_df)
     
     # with right_column:
@@ -49,6 +54,16 @@ def main():
         result_img = st.session_state.get('result_img')
         if result_img is not None:
             st.image(result_img, caption='Result Image', use_container_width=True)
+    
+    if st.session_state.get('result_df') is not None:
+        result_df = st.session_state.get('result_df')
+        csv_file = result_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Download data as CSV",
+            data= csv_file,
+            file_name="inference_results.csv",
+            mime="text/csv"
+        )
 
 if __name__ == '__main__':
     main()
