@@ -58,6 +58,7 @@ pyasn1_modules==0.4.1
 pydeck==0.9.1
 Pygments==2.19.1
 pyparsing==3.1.4
+pyrealsense2==2.55.1.6486
 python-dateutil==2.9.0.post0
 pytz==2024.2
 PyYAML==6.0.2
